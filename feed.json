@@ -13,13 +13,15 @@
             "id": "https://github.com/ivanZsasz/Trello/trello.html",
             "url": "https://github.com/ivanZsasz/Trello/trello.html",
             "title": "trello",
+            "summary": "trello",
+            "content_html": "<p>trello</p>",
             "author": {
                 "name": "tade"
             },
             "tags": [
             ],
             "date_published": "2025-12-09T18:45:43+01:00",
-            "date_modified": "2025-12-09T18:45:43+01:00"
+            "date_modified": "2025-12-09T19:18:01+01:00"
         }
     ]
 }

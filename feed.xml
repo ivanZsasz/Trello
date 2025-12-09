@@ -3,7 +3,7 @@
     <title>trello</title>
     <link href="https://github.com/ivanZsasz/Trello/feed.xml" rel="self" />
     <link href="https://github.com/ivanZsasz/Trello" />
-    <updated>2025-12-09T18:45:43+01:00</updated>
+    <updated>2025-12-09T19:18:01+01:00</updated>
     <author>
         <name>tade</name>
     </author>
@@ -18,7 +18,15 @@
         <id>https://github.com/ivanZsasz/Trello/trello.html</id>
 
         <updated>2025-12-09T18:45:43+01:00</updated>
-            <summary></summary>
-        <content></content>
+            <summary>
+                <![CDATA[
+                    trello
+                ]]>
+            </summary>
+        <content type="html">
+            <![CDATA[
+                <p>trello</p>
+            ]]>
+        </content>
     </entry>
 </feed>
