@@ -1,3 +1,2 @@
 User-agent: *
 Disallow:
-Sitemap: https://github.com/ivanZsasz/Trello/sitemap.xml
