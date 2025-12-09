@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trello Clone - V13 (Kanban Completo)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- PANTALLA DE BÚSQUEDA GLOBAL -->
+    <div id="search-screen" class="screen" style="background-color: var(--bg-color);">
+        <div class="app-header" style="border-bottom: 1px solid var(--separator-color);">
+            <i class="fas fa-arrow-left" style="font-size:20px; color:var(--text-color); cursor:pointer;"
+                onclick="closeGlobalSearch()"></i>
+            <input type="text" id="global-search-input" placeholder="Buscar tableros, tarjetas..."
+                style="flex:1; margin-left:16px; border:none; background:transparent; font-size:18px; color:var(--text-color); outline:none;">
+            <i class="fas fa-times" id="global-search-clear" onclick="clearGlobalSearch()"
+                style="font-size:18px; color:var(--text-subtle); cursor:pointer; display:none;"></i>
+        </div>
+        <div id="global-search-results" style="padding:16px; overflow-y:auto;">
+            <!-- Resultados aquí -->
+        </div>
+    </div>
+
+    <!-- MODALES -->
+    <div id="home-screen" class="screen active">
+        <header class="home-header">
+            <div class="logo-box-filled-white"></div> Trello
+        </header>
+        <div class="hero-container">
+            <img src="ImagenesTrello/imagen00.jpeg" class="hero-img">
+            <h1 class="hero-text" data-i18n="hero_text">Organízalo todo sin esfuerzo</h1>
+        </div>
+        <div class="btn-group">
+            <button onclick="window.showScreen('signup')" class="btn btn-white"
+                data-i18n="btn_signup">Registrarse</button>
+            <button onclick="window.showScreen('login')" class="btn btn-transparent" data-i18n="btn_login">Iniciar
+                sesión</button>
+        </div>
+        <div class="home-footer-links">
+            <span data-i18n="footer_terms">Al registrarte, aceptas nuestras</span> <a
+                href="https://www.atlassian.com/legal/atlassian-customer-agreement#intro" target="_blank"
+                data-i18n="about_terms">Condiciones del Servicio</a> <span data-i18n="footer_privacy">y nuestra</span>
+            <a href="https://www.atlassian.com/legal/privacy-policy" target="_blank" data-i18n="about_privacy">Política
+                de Privacidad</a><br>
+            <br>
+            <a href="https://support.atlassian.com/contact/?postauth=true#/" target="_blank"
+                data-i18n="opt_contact">Contactar con el servicio de asistencia</a>
+        </div>
+    </div>
+
+    <div id="login-screen" class="screen">
+        <nav class="nav-bar">
+            <div onclick="window.showScreen('home')" class="nav-icon"><i class="fas fa-arrow-left"></i></div>
+            <div class="nav-logo-text">
+                <div class="logo-box-blue"></div> Trello
+            </div>
+            <div onclick="window.showScreen('signup')" class="nav-link" data-i18n="btn_signup">Regístrate</div>
+        </nav>
+        <div class="auth-container">
+            <h2 class="auth-title" data-i18n="auth_login_title">Iniciar sesión</h2>
+            <form onsubmit="handleLogin(event)">
+                <div class="input-group"><input type="email" id="login-email" class="input-field"
+                        placeholder="INTRODUCE EL CORREO" data-i18n-placeholder="placeholder_email" required></div>
+                <div class="input-group"><input type="password" id="login-password" class="input-field"
+                        placeholder="INTRODUCE LA CONTRASEÑA" data-i18n-placeholder="placeholder_password" required>
+                </div>
+                <button type="submit" class="btn-submit" data-i18n="auth_login_title">Iniciar sesión</button>
+            </form>
+            <p id="login-error" style="color: red; font-size: 12px; margin-top:10px; display:none;"></p>
+            <div class="separator" data-i18n="or_continue">O continúa con</div>
+            <button onclick="handleGoogleLogin()" class="social-btn google"><i class="fab fa-google"></i>
+                Google</button>
+            <div class="auth-footer">
+                <a href="#" data-i18n="cant_login">¿No puedes iniciar sesión?</a>
+                <a onclick="window.showScreen('signup')" href="#" data-i18n="create_account">Crear una cuenta</a>
+                <div class="footer-terms"><a href="https://www.atlassian.com/legal/privacy-policy" target="_blank"
+                        data-i18n="about_privacy">Privacidad</a> • <a
+                        href="https://www.atlassian.com/legal/atlassian-customer-agreement#intro" target="_blank"
+                        data-i18n="about_terms">Términos</a></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="signup-screen" class="screen">
+        <nav class="nav-bar">
+            <div onclick="window.showScreen('home')" class="nav-icon"><i class="fas fa-arrow-left"></i></div>
+            <div class="nav-logo-text">
+                <div class="logo-box-blue"></div> Trello
+            </div>
+            <div onclick="window.showScreen('login')" class="nav-link" data-i18n="auth_login_title">Iniciar sesión</div>
+        </nav>
+        <div class="auth-container">
+            <h2 class="auth-title" data-i18n="btn_signup">Regístrate</h2>
+            <form onsubmit="handleInitialSignup(event)">
+                <div class="input-group"><input type="email" id="signup-email" class="input-field"
+                        placeholder="INTRODUCE EL CORREO" data-i18n-placeholder="placeholder_email" required></div>
+                <div class="legal-text"><span data-i18n="legal_signup">Al registrarme, acepto las</span> <a
+                        href="https://www.atlassian.com/legal/atlassian-customer-agreement#intro" target="_blank"
+                        data-i18n="about_terms">Condiciones del servicio</a> <span data-i18n="footer_privacy">y
+                        la</span> <a href="https://www.atlassian.com/legal/privacy-policy" target="_blank"
+                        data-i18n="about_privacy">Política de privacidad</a> <span data-i18n="of_atlassian">de
+                        Atlassian</span>.</div>
+                <button type="submit" class="btn-submit" data-i18n="btn_signup">Registrarse</button>
+            </form>
+            <div class="separator" data-i18n="or_continue">O continúa con</div>
+            <button onclick="handleGoogleLogin()" class="social-btn google"><i class="fab fa-google"></i>
+                Google</button>
+            <div class="auth-footer"><a onclick="window.showScreen('login')" href="#" data-i18n="already_account">¿Ya
+                    tienes
+                    cuenta? Iniciar sesión</a></div>
+        </div>
+    </div>
+
+    <div id="check-email-screen" class="screen">
+        <nav class="nav-bar">
+            <div class="nav-icon"></div>
+            <div class="nav-logo-text">
+                <div class="logo-box-blue"></div> Trello
+            </div>
+            <div class="nav-icon"></div>
+        </nav>
+        <div class="auth-container check-email-content">
+            <img src="https://cdn-icons-png.flaticon.com/512/3063/3063822.png" alt="Email Sent" class="dog-img">
+            <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 10px;" data-i18n="check_email_title">Revisa tu
+                correo electrónico ✨</h2>
+            <p style="font-size: 14px; color: var(--text-subtle);" data-i18n="check_email_desc">Hemos enviado un enlace
+                de confirmación.</p>
+            <div class="email-display" id="display-sent-email">...</div>
+            <a href="mailto:" class="btn-submit" style="text-decoration:none; display:block;"
+                data-i18n="btn_open_mail">Abrir correo</a>
+            <button class="btn-outline" onclick="window.location.reload()" data-i18n="btn_resend">Reenviar
+                correo</button>
+        </div>
+    </div>
+
+    <div id="finish-setup-screen" class="screen">
+        <div style="text-align:center; padding: 20px;">
+            <div
+                style="display:inline-flex; align-items:center; font-size: 24px; font-weight:700; color: var(--logo-text-color); gap: 8px;">
+                <div class="logo-box-blue" style="width:28px; height:28px;"></div> Trello
+            </div>
+        </div>
+        <div class="auth-container">
+            <h2 style="text-align:center; font-size: 18px; margin-bottom: 5px;"><span data-i18n="setup_title">Correo
+                    verificado</span> <i class="fas fa-check-circle verified-badge"></i></h2>
+            <div style="width:100%; margin-bottom: 15px;"><label class="info-label" data-i18n="label_email">Dirección de
+                    correo electrónico</label>
+                <div id="final-email-display" style="font-weight: 700; font-size: 14px;">...</div>
+            </div>
+            <form onsubmit="handleFinishSetup(event)">
+                <div class="input-group"><label class="info-label" data-i18n="label_name">Nombre completo</label><input
+                        type="text" id="full-name" class="input-field" placeholder="Nombre completo"
+                        data-i18n-placeholder="placeholder_name" required></div>
+                <div class="input-group">
+                    <label class="info-label" data-i18n="label_pass">Contraseña</label>
+                    <div class="password-container"><input type="password" id="create-password" class="input-field"
+                            placeholder="Crear contraseña" data-i18n-placeholder="placeholder_create_pass"
+                            oninput="checkStrength()" required><i class="far fa-eye eye-icon"
+                            onclick="togglePassVisibility()"></i></div>
+                    <div class="strength-bar">
+                        <div class="strength-fill" id="strength-fill"></div>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit" data-i18n="btn_continue">Continuar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="main-app-screen" class="screen">
+
+        <div id="tab-tableros" class="tab-content active-tab">
+            <div class="app-header"><span data-i18n="nav_boards">Tableros</span><i class="fas fa-search"
+                    style="font-size:18px; cursor:pointer;" onclick="openGlobalSearch()"></i></div>
+
+            <div style="padding:0 16px 16px 16px;">
+                <div onclick="goToInbox()"
+                    style="background:var(--input-bg); border:1px solid var(--separator-color); padding:12px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin-bottom: 8px;">
+                    <span style="font-weight:600; font-size:14px;"><i class="fas fa-inbox"
+                            style="margin-right:8px;"></i> <span data-i18n="link_inbox">Bandeja de entrada</span></span>
+                    <span id="inbox-card-count" style="font-size:12px; color:var(--text-subtle);">0 tarjetas</span>
+                </div>
+                <div
+                    style="background:var(--input-bg); border:1px solid var(--separator-color); padding:8px 12px; border-radius:8px; display:flex; align-items:center;">
+                    <i class="fas fa-plus" style="color:var(--text-subtle); margin-right:8px;"></i>
+                    <input type="text" id="home-quick-card-input" placeholder="Añadir tarjeta a la bandeja..."
+                        style="border:none; background:transparent; width:100%; outline:none; color:var(--text-color); font-size:14px;"
+                        onkeypress="if(event.key === 'Enter') addQuickCardFromHome()">
+                </div>
+            </div>
+
+            <div id="boards-container">
+                <div id="pinned-boards-section" style="display:none; margin:0 16px 24px 16px;">
+                    <div
+                        style="display:flex; align-items:center; gap:8px; margin-bottom:12px; color:var(--text-color);">
+                        <i class="fas fa-thumbtack" style="color:#0079bf;"></i>
+                        <h3 style="margin:0; font-size:16px; font-weight:600;" data-i18n="section_pinned">Anclados</h3>
+                    </div>
+                    <div id="pinned-boards-list" class="board-grid"></div>
+                </div>
+
+                <div id="favorite-boards-section" style="display:none; margin:0 16px 24px 16px;">
+                    <div
+                        style="display:flex; align-items:center; gap:8px; margin-bottom:12px; color:var(--text-color);">
+                        <i class="fas fa-star" style="color:#f2d600;"></i>
+                        <h3 style="margin:0; font-size:16px; font-weight:600;" data-i18n="section_favorites">Favoritos
+                        </h3>
+                    </div>
+                    <div id="favorite-boards-list" class="board-grid"></div>
+                </div>
+
+                <div id="regular-boards-section" style="margin:0 16px;">
+                    <div
+                        style="display:flex; align-items:center; gap:8px; margin-bottom:12px; color:var(--text-color);">
+                        <i class="fas fa-columns"></i>
+                        <h3 style="margin:0; font-size:16px; font-weight:600;" data-i18n="section_your_boards">Tus
+                            tableros</h3>
+                    </div>
+                    <div id="regular-boards-list" class="board-grid"></div>
+                </div>
+
+                <div id="boards-empty" class="empty-state"><img
+                        src="https://cdn-icons-png.flaticon.com/512/616/616408.png" class="empty-img" alt="Gato">
+                    <div class="empty-title" data-i18n="empty_boards_title">Sin tableros</div>
+                    <div class="empty-desc" data-i18n="empty_boards_desc">Crea tu primer tablero de Trello</div>
+                </div>
+                <div id="boards-grid" class="board-grid" style="display:none;"></div>
+            </div>
+
+            <div class="btn-create-board" onclick="openModal('modal-create-board')"><i class="fas fa-plus"></i> <span
+                    data-i18n="btn_create_board">Crear tablero</span></div>
+        </div>
+
+        <div id="tab-bandeja" class="tab-content">
+            <div class="app-header" id="inbox-header">
+                <span data-i18n="header_inbox">Bandeja de entrada</span>
+                <div style="display:flex; gap:16px; align-items:center;">
+                    <div style="position:relative;">
+                        <i class="fas fa-filter" style="font-size:18px; cursor:pointer;"
+                            onclick="toggleInboxSortMenu()"></i>
+                        <div id="inbox-sort-menu" class="popup-menu" style="right:0; width:200px;">
+                            <div class="popup-item" onclick="applyInboxSort('manual')">
+                                <i class="fas fa-sort"></i> <span data-i18n="sort_manual">Manual</span>
+                            </div>
+                            <div class="popup-item" onclick="applyInboxSort('alpha')">
+                                <i class="fas fa-sort-alpha-down"></i> <span
+                                    data-i18n="sort_alpha">Alfabéticamente</span>
+                            </div>
+                            <div class="popup-item" onclick="applyInboxSort('creation')">
+                                <i class="far fa-clock"></i> <span data-i18n="sort_creation">Fecha de creación</span>
+                            </div>
+                            <div class="popup-item" onclick="applyInboxSort('recent')">
+                                <i class="fas fa-history"></i> <span data-i18n="sort_recent">Últimos abiertos</span>
+                            </div>
+                        </div>
+                    </div>
+                    <i class="fas fa-ellipsis-v" style="font-size:18px; cursor:pointer;"
+                        onclick="toggleInboxMenu()"></i>
+                </div>
+                <div id="inbox-menu" class="popup-menu">
+                    <div class="popup-item" onclick="toggleSelectionMode('inbox')"><i class="far fa-check-circle"></i>
+                        <span data-i18n="action_select">Seleccionar</span>
+                    </div>
+                    <div class="popup-item" onclick="window.showScreen('archive')"><i class="fas fa-archive"></i> <span
+                            data-i18n="action_view_archive">Ver archivo</span>
+                    </div>
+                    <div class="popup-item" onclick="openModal('modal-covers', true)"><i class="fas fa-image"></i>
+                        <span data-i18n="action_change_bg">Cambiar el fondo</span>
+                    </div>
+                    <div class="popup-item" onclick="archiveAllCards()"><i class="fas fa-file-archive"></i> <span
+                            data-i18n="action_archive_all">Archivar todas las tarjetas</span></div>
+                    <div class="popup-item" onclick="window.showScreen('feedback')"><i class="fas fa-bullhorn"></i>
+                        <span data-i18n="action_send_feedback">Enviar comentarios</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="inbox-card-list" class="card-list">
+            </div>
+
+            <div id="inbox-empty" class="empty-state">
+                <img src="https://cdn-icons-png.flaticon.com/512/616/616430.png" class="empty-img" alt="Perro Husky">
+                <div class="empty-title" data-i18n="empty_inbox_title">No hay tarjetas</div>
+                <div class="empty-desc" data-i18n="empty_inbox_desc">Capta las tareas y las ideas según vienen,
+                    organízalas cuando quieras.</div>
+            </div>
+
+            <div class="quick-input-container" id="quick-input-container">
+                <div class="quick-input">
+                    <input type="text" id="quick-card-input" placeholder="Añadir tarjeta"
+                        style="border:none; background:transparent; width:100%; outline:none; color:var(--text-color);"
+                        onkeypress="if(event.key === 'Enter') addQuickCard()">
+                    <div style="display:flex; gap:10px;">
+                        <i class="fas fa-paperclip" id="quick-attach-icon"
+                            style="color:var(--text-subtle); cursor:pointer;"
+                            onclick="document.getElementById('quick-add-file').click()"></i>
+                        <input type="file" id="quick-add-file" hidden onchange="handleQuickFile()">
+                        <i class="fas fa-check" style="color:green; cursor:pointer;" onclick="addQuickCard()"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="inbox-selection-bar" class="selection-bar">
+                <div style="display:flex; align-items:center; gap:20px;">
+                    <span id="inbox-selection-count" style="font-weight:700; font-size:16px;">0 seleccionadas</span>
+                </div>
+                <div style="display:flex; gap:20px;">
+                    <i class="fas fa-archive" style="font-size:20px; cursor:pointer;"
+                        onclick="archiveSelectedCards()"></i>
+                    <i class="fas fa-trash" style="font-size:20px; cursor:pointer; color:#ff5252;"
+                        onclick="deleteSelectedCards('inbox')"></i>
+                    <i class="fas fa-times" style="font-size:20px; cursor:pointer;"
+                        onclick="toggleSelectionMode('inbox')"></i>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-actividad" class="tab-content">
+            <div class="app-header"><span data-i18n="header_activity">Actividad</span>
+                <div style="display:flex; gap:16px;"><i class="fas fa-check-double"
+                        style="font-size:16px; color:var(--text-subtle);"></i><i class="fas fa-ellipsis-v"
+                        style="font-size:16px;"></i></div>
+            </div>
+            <div class="filter-bar">
+                <div class="filter-chip"><span data-i18n="filter_all">Todos los tipos</span> <i
+                        class="fas fa-caret-down"></i></div>
+                <div class="filter-chip active"><i class="fas fa-check"></i> <span data-i18n="filter_unread">Sin
+                        leer</span></div>
+            </div>
+            <div class="empty-state"><img src="https://cdn-icons-png.flaticon.com/512/616/616554.png" class="empty-img"
+                    alt="Gato Pecera">
+                <div class="empty-title" style="font-size:16px;" data-i18n="empty_activity">No tienes ninguna
+                    notificación que se ajuste a los filtros.</div><br><a href="#"
+                    style="color:var(--btn-primary); font-weight:600; text-decoration:none;"
+                    data-i18n="clear_filters">Borrar los filtros</a>
+            </div>
+        </div>
+
+        <div id="tab-cuenta" class="tab-content">
+            <div class="app-header"><span data-i18n="header_account">Cuenta</span></div>
+            <div class="account-header-card">
+                <div class="avatar-circle" id="profile-initial">?</div>
+                <div class="user-details">
+                    <h3 id="profile-name">Cargando...</h3>
+                    <p id="profile-handle">@...</p>
+                    <p id="profile-email">...</p>
+                </div>
+                <i class="fas fa-ellipsis-v" style="margin-left:auto; color:var(--text-subtle);"></i>
+            </div>
+            <div style="padding: 0 16px; margin-bottom:10px; font-weight:600; color:var(--text-subtle);"
+                data-i18n="section_workspaces">Espacios de trabajo</div>
+            <ul class="account-menu-list">
+                <li class="account-menu-item"><i class="fas fa-users"></i>
+                    <div>
+                        <div style="font-weight:600; font-size:14px;"><span data-i18n="ws_of">Espacio de trabajo
+                                de</span> <span id="ws-name">usuario</span></div>
+                        <div style="font-size:12px; color:var(--text-subtle);" data-i18n="free">Gratuito</div>
+                    </div>
+                </li>
+            </ul>
+            <div style="padding: 16px 16px 8px 16px; font-weight:600; color:var(--text-subtle);"
+                data-i18n="section_general">General</div>
+            <ul class="account-menu-list">
+                <li class="account-menu-item" onclick="showScreen('offline-boards-screen'); renderOfflineBoards()"><i
+                        class="fas fa-download"></i> <span data-i18n="menu_offline">Tableros
+                        sin conexión</span></li>
+                <li class="account-menu-item"><i class="fas fa-copy"></i> <span data-i18n="menu_templates">Ver las
+                        plantillas</span></li>
+                <li class="account-menu-item" onclick="window.showScreen('settings')"><i class="fas fa-cog"></i> <span
+                        data-i18n="menu_settings">Configuración</span></li>
+                <li class="account-menu-item" onclick="window.showScreen('feedback')"><i class="fas fa-bullhorn"></i>
+                    <span data-i18n="menu_feedback">Compartir feedback</span>
+                </li>
+                <li class="account-menu-item" onclick="window.open('https://support.atlassian.com/', '_blank')"><i
+                        class="far fa-question-circle"></i> <span data-i18n="menu_help">Ayuda</span></li>
+            </ul>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item selected" onclick="switchTab('tableros', this)">
+                <div class="icon-container"><i class="fab fa-trello"></i></div><span
+                    data-i18n="nav_boards">Tableros</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('bandeja', this)">
+                <div class="icon-container"><i class="fas fa-inbox"></i></div><span data-i18n="nav_inbox">Bandeja</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('actividad', this)">
+                <div class="icon-container"><i class="far fa-bell"></i></div><span
+                    data-i18n="nav_activity">Actividad</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('cuenta', this)">
+                <div class="icon-container"><i class="far fa-user-circle"></i></div><span
+                    data-i18n="nav_account">Cuenta</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="board-view-screen" class="screen">
+        <div class="board-view-header"
+            style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:var(--header-bg); border-bottom:1px solid var(--separator-color);">
+            <div style="display:flex; align-items:center; gap:12px; flex:0 0 auto;">
+                <i class="fas fa-arrow-left" style="cursor:pointer; font-size:18px; color:var(--text-color);"
+                    onclick="closeBoard()"></i>
+                <div class="board-header-title" id="board-header-title"
+                    style="font-size:18px; font-weight:700; color:var(--text-color);">Cargando...</div>
+            </div>
+
+            <div style="flex:1; max-width:500px; margin:0 20px;">
+                <div style="position:relative;">
+                    <input type="text" id="board-search-input" placeholder="Buscar tarjetas, listas o archivos..."
+                        style="width:100%; padding:8px 36px 8px 36px; border:1px solid var(--input-border); border-radius:20px; background:var(--input-bg); color:var(--text-color); font-size:14px; outline:none;"
+                        oninput="searchBoard(this.value)">
+                    <i class="fas fa-search"
+                        style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-subtle); font-size:14px; pointer-events:none;"></i>
+                    <i class="fas fa-times" id="board-search-clear"
+                        style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-subtle); font-size:14px; cursor:pointer; display:none;"
+                        onclick="clearBoardSearch()"></i>
+                </div>
+
+                <div id="board-search-results"
+                    style="display:none; position:absolute; top:100%; left:0; right:0; background:var(--bg-color); border:1px solid var(--separator-color); border-radius:8px; margin-top:8px; max-height:400px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,0.15); z-index:1000;">
+                </div>
+            </div>
+
+            <div style="display:flex; gap:12px; align-items:center; font-size:18px; position:relative; flex:0 0 auto;">
+                <div id="board-members-display" style="display:flex; gap:4px;">
+                </div>
+                <i class="fas fa-ellipsis-v" style="cursor:pointer; color:var(--text-color);"
+                    onclick="toggleBoardMenu()"></i>
+
+                <div id="board-menu" class="popup-menu" style="right:0; top:40px;">
+                    <div class="popup-item" onclick="toggleBoardFavorite()">
+                        <i class="fas fa-star" id="board-favorite-icon"></i> <span id="board-favorite-text"
+                            data-i18n="action_mark_fav">Marcar como favorito</span>
+                    </div>
+                    <div class="popup-item" onclick="toggleBoardPin()">
+                        <i class="fas fa-thumbtack" id="board-pin-icon"></i> <span id="board-pin-text"
+                            data-i18n="action_pin_home">Anclar en inicio</span>
+                    </div>
+                    <div class="popup-item" onclick="toggleBoardDarkMode()">
+                        <i class="fas fa-moon" id="board-theme-icon"></i> <span id="board-theme-text"
+                            data-i18n="action_dark_mode">Modo oscuro</span>
+                    </div>
+
+                    <div id="btn-archive-selected" class="popup-item" onclick="archiveSelectedCards()"
+                        style="display:none; color:#ff5252;">
+                        <i class="fas fa-archive"></i> <span data-i18n="action_archive_selected">Archivar
+                            seleccionadas</span>
+                    </div>
+
+                    <div style="height:1px; background:var(--separator-color); margin:8px 0;"></div>
+
+                    <div class="popup-item" onclick="toggleBoardOffline()">
+                        <i class="fas fa-cloud-download-alt" id="board-offline-icon"></i> <span
+                            id="board-offline-text">Disponible sin conexión</span>
+                    </div>
+
+                    <div style="height:1px; background:var(--separator-color); margin:8px 0;"></div>
+
+                    <div class="popup-item" onclick="openBoardSettingsModal()">
+                        <i class="fas fa-cog"></i> <span data-i18n="action_board_settings">Configuración del
+                            tablero</span>
+                    </div>
+
+                    <div class="popup-item" onclick="openModal('modal-add-members')">
+                        <i class="fas fa-user-plus"></i> <span data-i18n="action_add_members">Agregar
+                            participantes</span>
+                    </div>
+                    <div class="popup-item" onclick="showBoardMembers()">
+                        <i class="fas fa-users"></i> <span data-i18n="action_view_members">Ver participantes</span>
+                    </div>
+                    <div style="height:1px; background:var(--separator-color); margin:8px 0;"></div>
+                    <div class="popup-item" onclick="leaveBoardConfirm()" style="color:#ff5252;">
+                        <i class="fas fa-sign-out-alt"></i> <span data-i18n="action_leave_board">Salir del
+                            tablero</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="board-canvas" class="board-canvas">
+            <div class="add-list-wrapper" onclick="createNewList()">
+                <i class="fas fa-plus"></i> <span data-i18n="action_add_list">Añadir lista</span>
+            </div>
+        </div>
+
+        <div class="fab-search">
+            <i class="fas fa-search"></i>
+        </div>
+    </div>
+
+    <div id="archive-screen" class="screen">
+        <div class="app-header" style="border-bottom:1px solid var(--separator-color);" id="archive-header">
+            <div style="display:flex; align-items:center; gap:16px;">
+                <i class="fas fa-arrow-left" onclick="goToInbox()" style="cursor:pointer;"></i>
+                <span style="font-weight:700; font-size:20px;" data-i18n="header_archived_cards">Tarjetas
+                    archivadas</span>
+            </div>
+            <i class="fas fa-list-ul" style="font-size:20px; cursor:pointer;"
+                onclick="toggleSelectionMode('archive')"></i>
+        </div>
+
+        <div class="app-header" style="border-bottom:1px solid var(--separator-color); display:none;"
+            id="archive-selection-header">
+            <div style="display:flex; align-items:center; gap:16px;">
+                <i class="fas fa-times" onclick="toggleSelectionMode('archive')" style="cursor:pointer;"></i>
+                <span style="font-weight:700; font-size:20px;" id="archive-selection-count">0 seleccionadas</span>
+            </div>
+            <span
+                style="font-weight:700; font-size:14px; color:var(--text-color); cursor:pointer; text-transform:uppercase;"
+                onclick="restoreSelectedCards()" data-i18n="action_restore">RESTAURAR</span>
+        </div>
+
+        <div style="padding:10px 16px; font-size:12px; color:var(--text-subtle); display:flex; gap:10px;">
+            <span><i class="far fa-check-square"></i> <span id="archive-total-count">0</span></span>
+            <span><i class="fas fa-archive"></i> <span data-i18n="label_archivados">Archivados</span></span>
+        </div>
+
+        <div id="archive-card-list" class="card-list">
+        </div>
+    </div>
+
+    <div id="card-detail-modal" style="display:none;">
+        <input type="hidden" id="current-card-id">
+
+        <div id="detail-cover-container" class="detail-cover-container">
+            <div id="detail-cover" class="card-cover-large"></div>
+            <div id="detail-cover-btn" class="cover-btn" onclick="openModal('modal-covers')"><i
+                    class="fas fa-image"></i> Portada</div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; padding:16px 16px 0 16px;">
+            <i class="fas fa-times" style="font-size:20px; cursor:pointer;" onclick="closeCardDetail()"></i>
+        </div>
+
+        <div class="card-content">
+            <div style="display:flex; gap:10px; align-items:center; margin-bottom:16px;">
+                <div class="avatar-circle" style="width:24px; height:24px; font-size:12px; border:1px solid #ccc;">
+                </div>
+                <input type="text" id="detail-title" value=""
+                    style="font-size:20px; font-weight:700; border:none; background:transparent; width:100%; outline:none; color:var(--text-color);">
+            </div>
+
+            <div
+                style="background:var(--input-bg); padding:10px; border-radius:4px; font-size:14px; margin-bottom:20px; display:flex; justify-content:space-between;">
+                <span><i class="fas fa-inbox" style="margin-right:6px;"></i> Bandeja de entrada</span>
+                <span style="color:var(--btn-primary); font-weight:600;">Mover</span>
+            </div>
+
+            <div class="section-header">Acciones rápidas <i class="fas fa-chevron-up"></i></div>
+            <div class="action-chips">
+                <div class="action-chip" onclick="openModal('modal-covers')"><i class="fas fa-image"></i> Portada</div>
+                <div class="action-chip" onclick="addChecklistToCard()"><i class="fas fa-check-square"></i> Añadir
+                    checklist</div>
+                <div class="action-chip" onclick="document.getElementById('card-file-input').click()"><i
+                        class="fas fa-paperclip"></i> Añadir adjunto</div>
+            </div>
+            <input type="file" id="card-file-input" style="display:none" onchange="uploadAttachment()">
+
+            <div style="margin-top:20px; border-bottom:1px solid var(--separator-color); padding-bottom:10px;">
+                <div class="input-group" style="margin-bottom:10px;">
+                    <span
+                        style="margin-left:28px; font-size:12px; font-weight:600; color:var(--text-subtle); display:block; margin-bottom:4px;">Fecha
+                        de inicio</span>
+                    <i class="far fa-clock" style="margin-right:10px; color:var(--text-subtle);"></i>
+                    <input type="date" id="detail-start-date"
+                        style="border:none; background:transparent; color:var(--text-color);">
+                </div>
+                <div class="input-group">
+                    <span
+                        style="margin-left:28px; font-size:12px; font-weight:600; color:var(--text-subtle); display:block; margin-bottom:4px;">Fecha
+                        de vencimiento</span>
+                    <span style="display:inline-block; width:24px;"></span>
+                    <input type="date" id="detail-due-date"
+                        style="border:none; background:transparent; color:var(--text-color);">
+                </div>
+            </div>
+
+            <div class="section-header">Adjuntos <i class="fas fa-plus"
+                    style="color:var(--btn-primary); cursor:pointer;"
+                    onclick="document.getElementById('card-file-input').click()"></i></div>
+            <div id="attachments-container"></div>
+
+            <div id="checklists-container"></div>
+
+            <div class="section-header">Actividad <i class="fas fa-ellipsis-v"></i></div>
+            <div id="activity-log-container"></div>
+
+        </div>
+        <div
+            style="padding:10px; border-top:1px solid var(--separator-color); flex-direction:column; background:var(--bg-color);">
+            <div id="card-comments-list"
+                style="width:100%; max-height:200px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:8px;">
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; width:100%;">
+                <div class="avatar-circle" style="width:28px; height:28px; font-size:12px;"></div>
+                <input type="text" id="card-comment-input" placeholder="Añadir comentario (Enter para enviar)"
+                    style="flex:1; border:1px solid var(--input-border); border-radius:20px; padding:8px 12px; background:var(--input-bg); color:var(--text-color);"
+                    onkeypress="if(event.key === 'Enter') addComment('inbox')">
+                <i class="fas fa-paper-plane" style="color:var(--text-subtle); cursor:pointer;"
+                    onclick="addComment('inbox')"></i>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-covers" class="modal-overlay">
+        <div class="modal-content" style="max-width:90%;">
+            <div class="modal-title">Seleccionar portada</div>
+
+            <div class="section-header">Personalizado</div>
+            <div class="cover-grid" style="grid-template-columns: 1fr;">
+                <div class="cover-option"
+                    style="background:none; border:1px solid #ccc; display:flex; align-items:center; justify-content:center; height:40px; gap:8px;"
+                    onclick="document.getElementById('local-cover-upload-inbox').click()">
+                    <i class="fas fa-upload"></i> Subir desde dispositivo
+                </div>
+            </div>
+            <input type="file" id="local-cover-upload-inbox" hidden accept="image/*"
+                onchange="handleLocalCoverUpload('inbox')">
+
+            <div class="section-header">Colores</div>
+            <div class="cover-grid" id="color-grid"></div>
+
+            <div class="section-header">Imágenes</div>
+            <div class="cover-grid" id="unsplash-grid"></div>
+
+            <div class="section-header">Opciones</div>
+            <div class="cover-grid" style="grid-template-columns: 1fr;">
+                <div class="cover-option"
+                    style="background:none; border:1px solid #ccc; display:flex; align-items:center; justify-content:center; height:40px;"
+                    onclick="setCover(null, false)"><i class="fas fa-ban"></i> Quitar fondo/portada</div>
+            </div>
+
+            <div class="modal-actions"><button class="modal-btn cancel"
+                    onclick="closeModal('modal-covers')">Cerrar</button></div>
+        </div>
+    </div>
+
+    <div id="board-card-detail-modal" class="modal-overlay" style="display:none;">
+        <div
+            style="background:var(--bg-color); width:100%; max-width:600px; margin:auto; border-radius:12px; overflow:hidden; max-height:90vh; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+            <input type="hidden" id="current-board-card-id">
+            <input type="hidden" id="current-board-card-list-id">
+
+            <div id="board-card-cover-container" class="detail-cover-container">
+                <div id="board-card-cover" class="card-cover-large"></div>
+                <div id="board-card-cover-btn" class="cover-btn" onclick="openModal('modal-board-card-covers')"><i
+                        class="fas fa-image"></i> Portada</div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; padding:16px 16px 0 16px;">
+                <i class="fas fa-times" style="font-size:20px; cursor:pointer; color:var(--text-color);"
+                    onclick="closeBoardCardDetail()"></i>
+            </div>
+
+            <div class="card-content">
+                <div style="display:flex; gap:10px; align-items:center; margin-bottom:16px;">
+                    <div class="avatar-circle" style="width:24px; height:24px; font-size:12px; border:1px solid #ccc;">
+                    </div>
+                    <input type="text" id="board-card-title" value=""
+                        style="font-size:20px; font-weight:700; border:none; background:transparent; width:100%; outline:none; color:var(--text-color);"
+                        onblur="updateBoardCardField('title', this.value)">
+                </div>
+
+                <div class="section-header">Acciones rápidas <i class="fas fa-chevron-up"></i></div>
+                <div class="action-chips">
+                    <div class="action-chip" onclick="openModal('modal-board-card-covers')"><i class="fas fa-image"></i>
+                        Portada</div>
+                    <div class="action-chip" onclick="addChecklistToBoardCard()"><i class="fas fa-check-square"></i>
+                        Añadir
+                        checklist</div>
+                    <div class="action-chip" onclick="document.getElementById('board-card-file-input').click()"><i
+                            class="fas fa-paperclip"></i> Añadir adjunto</div>
+                    <div class="action-chip" onclick="archiveCurrentCard()"><i class="fas fa-archive"></i> Archivar
+                    </div>
+                </div>
+                <input type="file" id="board-card-file-input" style="display:none" accept="image/*,.pdf"
+                    onchange="uploadBoardCardAttachment()">
+
+                <div class="section-header">Descripción</div>
+                <textarea id="board-card-desc" placeholder="Añade una descripción más detallada..."
+                    style="width:100%; min-height:80px; border:1px solid var(--input-border); border-radius:4px; padding:10px; background:var(--input-bg); color:var(--text-color); resize:vertical; font-family: inherit;"
+                    onblur="updateBoardCardField('desc', this.value)"></textarea>
+
+                <div class="section-header">Adjuntos <i class="fas fa-plus"
+                        style="color:var(--btn-primary); cursor:pointer;"
+                        onclick="document.getElementById('board-card-file-input').click()"></i></div>
+                <div id="board-card-attachments-container"></div>
+
+                <div id="board-card-checklists-container"></div>
+
+                <div class="section-header">Actividad <i class="fas fa-ellipsis-v"></i></div>
+                <div id="board-card-activity-container"></div>
+
+                <div id="board-card-comments-list"
+                    style="margin-top:16px; display:flex; flex-direction:column; gap:10px;"></div>
+
+            </div>
+            <div
+                style="padding:10px; border-top:1px solid var(--separator-color); display:flex; align-items:center; gap:10px; background:var(--bg-color);">
+                <div class="avatar-circle" style="width:28px; height:28px; font-size:12px;"></div>
+                <input type="text" id="board-card-comment-input" placeholder="Añadir comentario (Enter para enviar)"
+                    style="flex:1; border:1px solid var(--input-border); border-radius:20px; padding:8px 12px; background:var(--input-bg); color:var(--text-color);"
+                    onkeypress="if(event.key === 'Enter') addComment('board-card')">
+                <i class="fas fa-paper-plane" style="color:var(--text-subtle); cursor:pointer;"
+                    onclick="addComment('board-card')"></i>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-board-card-covers" class="modal-overlay">
+        <div class="modal-content" style="max-width:90%;">
+            <div class="modal-title">Seleccionar portada</div>
+
+            <div class="section-header">Personalizado</div>
+            <div class="cover-grid" style="grid-template-columns: 1fr;">
+                <div class="cover-option"
+                    style="background:none; border:1px solid #ccc; display:flex; align-items:center; justify-content:center; height:40px; gap:8px;"
+                    onclick="document.getElementById('local-cover-upload-board').click()">
+                    <i class="fas fa-upload"></i> Subir desde dispositivo
+                </div>
+            </div>
+            <input type="file" id="local-cover-upload-board" hidden accept="image/*"
+                onchange="handleLocalCoverUpload('board-card')">
+
+            <div class="section-header">Colores</div>
+            <div class="cover-grid" id="board-card-color-grid"></div>
+
+            <div class="section-header">Imágenes</div>
+            <div class="cover-grid" id="board-card-unsplash-grid"></div>
+        </div>
+    </div>
+
+    <!-- BOARD SETTINGS MODAL -->
+    <div id="board-settings-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px; height: 80vh; display: flex; flex-direction: column;">
+
+            <!-- HEADER -->
+            <div
+                style="display: flex; align-items: center; border-bottom: 1px solid var(--separator-color); padding-bottom: 12px; margin-bottom: 12px;">
+                <i class="fas fa-arrow-left" id="settings-back-btn"
+                    style="cursor: pointer; font-size: 18px; margin-right: 16px; display: none;"
+                    onclick="navigateSettings('home')"></i>
+                <div class="modal-title" style="margin: 0; flex: 1;" id="settings-modal-title">Configuración del
+                    tablero</div>
+                <i class="fas fa-times" style="cursor: pointer; font-size: 20px;"
+                    onclick="closeModal('board-settings-modal')"></i>
+            </div>
+
+            <div style="flex: 1; overflow-y: auto;">
+
+                <!-- VIEW: HOME -->
+                <div id="settings-view-home">
+                    <div class="settings-menu-item" onclick="navigateSettings('about')">
+                        <i class="fas fa-info-circle"></i> Acerca de este tablero
+                    </div>
+                    <div class="settings-menu-item" onclick="navigateSettings('edit')">
+                        <i class="fas fa-edit"></i> Editar tablero
+                    </div>
+                    <div class="settings-menu-item" onclick="navigateSettings('background')">
+                        <i class="fas fa-image"></i> Cambiar fondo
+                    </div>
+                    <div class="settings-menu-item" onclick="navigateSettings('members')">
+                        <i class="fas fa-users"></i> Miembros
+                    </div>
+                    <div class="settings-menu-item" onclick="navigateSettings('archived')">
+                        <i class="fas fa-archive"></i> Elementos archivados
+                    </div>
+                    <div class="settings-menu-item" onclick="navigateSettings('activity')">
+                        <i class="fas fa-list-ul"></i> Actividad
+                    </div>
+                    <div class="settings-menu-item" onclick="handleCloneBoard()">
+                        <i class="far fa-copy"></i> Copiar tablero
+                    </div>
+                </div>
+
+                <!-- VIEW: ABOUT -->
+                <div id="settings-view-about" style="display: none;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="font-size: 14px; color: var(--text-subtle);">Creado por</div>
+                        <div id="about-creator" style="font-weight: 600; font-size: 16px; margin-top: 4px;">--</div>
+                        <div id="about-date" style="font-size: 12px; color: var(--text-subtle); margin-top: 4px;">--
+                        </div>
+                    </div>
+                    <div class="section-header">Descripción</div>
+                    <div id="about-desc" style="font-style: italic; color: var(--text-color);">Sin descripción</div>
+                </div>
+
+                <!-- VIEW: EDIT -->
+                <div id="settings-view-edit" style="display: none; display: flex; flex-direction: column;">
+                    <div style="margin-bottom: 16px;">
+                        <label class="form-label" style="display:block; margin-bottom:6px; font-weight:600;">Título del
+                            tablero</label>
+                        <input type="text" id="edit-board-title" class="form-input" style="width: 100%;">
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <label class="form-label"
+                            style="display:block; margin-bottom:6px; font-weight:600;">Descripción</label>
+                        <textarea id="edit-board-desc" class="form-input"
+                            style="height: 100px; resize: vertical; width: 100%;"></textarea>
+                    </div>
+
+                    <button class="btn-submit" onclick="saveBoardDetails()">Guardar
+                        cambios</button>
+
+                    <div class="section-header" style="margin-top: 32px;">Participantes</div>
+                    <div id="edit-board-members-list"></div>
+                </div>
+
+                <!-- VIEW: BACKGROUND -->
+                <div id="settings-view-background" style="display: none;">
+                    <div class="section-header">Colores</div>
+                    <div class="cover-grid" id="settings-bg-color-grid"></div>
+
+                    <div class="section-header">Imágenes</div>
+                    <div class="cover-grid" id="settings-bg-unsplash-grid"></div>
+
+                    <div class="section-header">Personalizado</div>
+                    <div class="cover-option"
+                        style="background:none; border:1px solid #ccc; display:flex; align-items:center; justify-content:center; height:40px; gap:8px;"
+                        onclick="document.getElementById('settings-bg-upload').click()">
+                        <i class="fas fa-upload"></i> Subir desde dispositivo
+                    </div>
+                    <input type="file" id="settings-bg-upload" hidden accept="image/*"
+                        onchange="handleBoardBackgroundUpload()">
+                </div>
+
+                <!-- VIEW: ARCHIVED -->
+                <div id="settings-view-archived" style="display: none;">
+                    <div
+                        style="display: flex; gap: 10px; margin-bottom: 16px; border-bottom: 1px solid var(--separator-color);">
+                        <div id="tab-archived-cards"
+                            style="padding: 8px 12px; cursor: pointer; border-bottom: 2px solid var(--btn-primary); font-weight: 600;"
+                            onclick="switchArchivedTab('cards')">Tarjetas</div>
+                        <div id="tab-archived-lists" style="padding: 8px 12px; cursor: pointer; opacity: 0.6;"
+                            onclick="switchArchivedTab('lists')">Listas</div>
+                    </div>
+                    <div id="archived-items-list"></div>
+                </div>
+
+                <!-- VIEW: MEMBERS -->
+                <div id="settings-view-members" style="display: none;">
+                    <div class="section-header">Invitar miembro</div>
+                    <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+                        <input type="email" id="invite-member-email" placeholder="Email del usuario" class="form-input"
+                            style="flex: 1;">
+                        <button onclick="inviteMemberToBoard()" class="modal-btn">
+                            <i class="fas fa-user-plus"></i> Invitar
+                        </button>
+                    </div>
+
+                    <div class="section-header">Miembros actuales</div>
+                    <div id="members-list"></div>
+                </div>
+
+                <!-- VIEW: ACTIVITY -->
+                <div id="settings-view-activity" style="display: none;">
+                    <div id="settings-activity-list"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="full-viewer-modal" class="modal-overlay" onclick="closeViewer()">
+        <img id="full-viewer-content" onclick="event.stopPropagation()" style="display:none;">
+        <iframe id="full-viewer-pdf" onclick="event.stopPropagation()" style="display:none;"></iframe>
+        <div class="viewer-actions" onclick="event.stopPropagation()">
+            <button class="viewer-btn" onclick="downloadCurrentAttachment()"><i class="fas fa-download"></i>
+                Descargar</button>
+            <button class="viewer-btn" onclick="closeViewer()" style="color:red;"><i class="fas fa-times"></i>
+                Cerrar</button>
+        </div>
+    </div>
+
+    <div id="settings-screen" class="screen">
+        <div class="app-header" style="border-bottom:1px solid var(--separator-color);">
+            <div style="display:flex; align-items:center; gap:16px;">
+                <i class="fas fa-arrow-left" onclick="goToApp()" style="cursor:pointer;"></i> <span
+                    data-i18n="header_settings">Configuración</span>
+            </div>
+        </div>
+        <div class="settings-section-title" style="margin-top:10px;" data-i18n="sec_theme">Tema de la aplicación
+        </div>
+        <ul class="account-menu-list" style="border-top:none;">
+            <li class="account-menu-item" style="border:none; padding-top:0; justify-content:space-between;">
+                <div data-i18n="opt_dark_mode">Modo oscuro</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="theme-toggle" onchange="toggleTheme()">
+                    <span class="slider"></span>
+                </label>
+            </li>
+        </ul>
+        <div class="settings-section-title" style="margin-top:10px;" data-i18n="sec_a11y">Accesibilidad</div>
+        <ul class="account-menu-list" style="border-top:none;">
+            <li class="account-menu-item" style="border-bottom:none; justify-content:space-between;">
+                <div data-i18n="opt_colorblind">Modo apto para daltónicos</div>
+                <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
+            </li>
+            <li class="account-menu-item" style="border-bottom:none; justify-content:space-between;">
+                <div data-i18n="opt_animations">Habilitar las animaciones</div>
+                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </li>
+            <li class="account-menu-item" style="border-bottom:none; justify-content:space-between;">
+                <div style="max-width:80%;" data-i18n="opt_labels">Mostrar nombres de etiqueta</div>
+                <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
+            </li>
+        </ul>
+        <div class="settings-section-title" data-i18n="sec_sync">Sincronización</div>
+        <ul class="account-menu-list" style="border-top:none;">
+            <li class="account-menu-item" style="border:none; padding-top:0;" data-i18n="opt_sync_queue">Cola de
+                sincronización</li>
+        </ul>
+        <div class="settings-section-title" data-i18n="sec_general">General</div>
+        <ul class="account-menu-list" style="border-top:none;">
+            <li class="account-menu-item" style="border-bottom:none;" data-i18n="opt_profile">Perfil y visibilidad
+            </li>
+            <li class="account-menu-item" onclick="openModal('modal-language')" style="border-bottom:none;">
+                <div style="flex:1;" data-i18n="opt_language">Establecer idioma de la aplicación</div>
+            </li>
+            <li class="account-menu-item" style="border-bottom:none; justify-content:space-between;">
+                <div data-i18n="opt_quick_add">Mostrar añadido rápida</div>
+                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </li>
+            <li class="account-menu-item" onclick="openModal('modal-delete')" style="border-bottom:none;"
+                data-i18n="opt_delete_account">Eliminar cuenta</li>
+            <li class="account-menu-item" onclick="openModal('modal-about')" style="border-bottom:none;"
+                data-i18n="opt_about">Acerca de Trello</li>
+            <li class="account-menu-item" style="border-bottom:none;">
+                <a href="https://support.atlassian.com/contact/#/" target="_blank"
+                    style="color:inherit; text-decoration:none; width:100%;" data-i18n="opt_contact">Contactar con
+                    el
+                    servicio de asistencia</a>
+            </li>
+            <li class="account-menu-item" onclick="handleLogout()"
+                style="border-bottom:none; padding-bottom:40px; color:#ff5252; font-weight:600;">
+                <span data-i18n="menu_logout">Cerrar sesión</span>
+            </li>
+        </ul>
+    </div>
+
+    <div id="feedback-screen" class="screen" style="background: var(--bg-color);">
+        <div class="app-header" style="background: var(--bg-color); border-bottom: none;">
+            <i class="fas fa-times" onclick="window.showScreen('main-app')"
+                style="cursor:pointer; font-size: 20px; color: var(--text-color);"></i>
+            <span style="font-weight: 700; font-size: 18px;" data-i18n="feedback_title">Enviar comentarios</span>
+            <span onclick="handleSendFeedback(event)"
+                style="font-weight: 700; color: var(--btn-primary); cursor: pointer; font-size: 16px;"
+                data-i18n="feedback_send">Enviar</span>
+        </div>
+        <div style="padding: 20px;">
+            <textarea id="feedback-text" placeholder="Dinos qué opinas" data-i18n-placeholder="feedback_placeholder"
+                style="width: 100%; height: 100px; border: none; resize: none; outline: none; font-size: 16px; background: transparent; color: var(--text-color); font-family: inherit;"></textarea>
+            <div style="margin-top: 10px; margin-bottom: 30px;">
+                <input type="file" id="feedback-file" style="display: none;" onchange="updateFileName()">
+                <label for="feedback-file"
+                    style="color: var(--btn-primary); font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-plus"></i> <span id="file-label-text" data-i18n="feedback_attach">Añadir
+                        archivo
+                        adjunto</span>
+                </label>
+            </div>
+            <div class="input-group" style="border-bottom: 1px solid var(--input-border); margin-bottom: 20px;">
+                <label style="font-size: 12px; color: var(--text-subtle); display: block; margin-bottom: 4px;"
+                    data-i18n="feedback_type">Tipo de comentario</label>
+                <select id="feedback-type"
+                    style="width: 100%; border: none; background: transparent; color: var(--text-color); font-size: 16px; outline: none; padding: 8px 0; font-family: inherit;">
+                    <option value="Error">Error</option>
+                    <option value="Mejora">Mejora</option>
+                    <option value="Ayuda">Ayuda</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <div style="font-size: 12px; color: var(--text-subtle); margin-bottom: 4px;"
+                    data-i18n="feedback_contact">Atlassian puede comunicarse conmigo sobre esto</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-size: 14px; color: var(--text-color);"><span
+                            data-i18n="feedback_policy_text">Consulta nuestra</span> <a
+                            href="https://www.atlassian.com/legal/privacy-policy" target="_blank"
+                            style="color: var(--btn-primary); text-decoration: none;" data-i18n="about_privacy">política
+                            de privacidad</a></div>
+                    <label class="toggle-switch"><input type="checkbox" id="feedback-privacy-switch"><span
+                            class="slider"></span></label>
+                </div>
+            </div>
+            <div class="input-group" style="border-bottom: 1px solid var(--input-border);">
+                <label style="font-size: 12px; color: var(--text-subtle); display: block; margin-bottom: 4px;"
+                    data-i18n="label_email">Correo electrónico</label>
+                <input type="email" id="feedback-email"
+                    style="width: 100%; border: none; background: transparent; color: var(--text-color); font-size: 16px; outline: none; padding: 8px 0;"
+                    placeholder="tu@email.com">
+            </div>
+        </div>
+    </div>
+
+    <div id="offline-boards-screen" class="screen">
+        <div class="app-header" style="border-bottom:1px solid var(--separator-color);">
+            <div style="display:flex; align-items:center; gap:16px;">
+                <i class="fas fa-arrow-left" onclick="showScreen('main-app'); switchTab('cuenta')"
+                    style="cursor:pointer;"></i>
+                <span style="font-weight:700; font-size:18px;" data-i18n="menu_offline">Tableros sin conexión</span>
+            </div>
+        </div>
+        <div style="padding:16px;">
+            <div id="offline-boards-list" class="board-grid"></div>
+            <div id="offline-boards-empty" class="empty-state" style="display:none;">
+                <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" class="empty-img" alt="Gato">
+                <div class="empty-title">No hay tableros offline</div>
+                <div class="empty-desc">Marca tus tableros como "Offline" para verlos aquí.</div>
+            </div>
+            <button class="btn-submit" onclick="showScreen('main-app'); switchTab('cuenta')"
+                style="margin-top:20px; width:auto; display:block; margin-left:auto; margin-right:auto;">Volver a
+                Configuración</button>
+        </div>
+    </div>
+
+    <div id="oss-screen" class="screen">
+        <div class="app-header" style="border-bottom:1px solid var(--separator-color);">
+            <div style="display:flex; align-items:center; gap:16px;">
+                <i class="fas fa-arrow-left" onclick="closeModal('modal-about'); showScreen('settings')"
+                    style="cursor:pointer;"></i> <span>Licencias Open Source</span>
+            </div>
+        </div>
+        <div style="padding:0; overflow-y:auto; padding-bottom:20px;">
+            <div class="oss-item">
+                <div class="oss-name">Activity Compose</div>
+                <div class="oss-version">Versión: 1.10.0</div>
+                <div class="oss-license">Apache License 2.0</div>
+            </div>
+            <div class="oss-item">
+                <div class="oss-name">Adapter: RxJava 2</div>
+                <div class="oss-version">Versión: 3.0.0</div>
+                data-i18n="btn_cancel">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-language" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title" data-i18n="modal_lang_title">Idioma</div>
+            <div class="radio-list">
+                <label class="radio-item"><input type="radio" name="lang" onclick="changeLanguage('es')" checked>
+                    Español</label>
+                <label class="radio-item"><input type="radio" name="lang" onclick="changeLanguage('en')">
+                    English</label>
+            </div>
+            <div class="modal-actions"><button class="modal-btn cancel" onclick="closeModal('modal-language')"
+                    data-i18n="btn_cancel">Cancelar</button></div>
+        </div>
+    </div>
+
+    <div id="modal-delete" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title" data-i18n="modal_delete_title">¿Deseas eliminar la cuenta?</div>
+            <p style="color:var(--text-subtle); margin-bottom:20px;" data-i18n="modal_delete_desc">Esta acción es
+                irreversible.</p>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeModal('modal-delete')"
+                    data-i18n="btn_cancel">Cancelar</button>
+                <button class="modal-btn danger" onclick="handleDeleteAccount()" data-i18n="btn_delete_confirm">Eliminar
+                    definitivamente</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-create-board" class="modal-overlay">
+        <div class="modal-content" style="max-width:90%; max-height:90vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 class="modal-title">Crear tablero</h3>
+                <i class="fas fa-times" onclick="closeModal('modal-create-board')"
+                    style="cursor:pointer; font-size:20px;"></i>
+            </div>
+
+            <div class="input-group">
+                <label class="info-label">Nombre del tablero</label>
+                <input type="text" id="board-name-input" class="input-field" placeholder="Nombre del tablero"
+                    maxlength="50">
+            </div>
+
+            <div class="input-group">
+                <label class="info-label">Espacio de trabajo</label>
+                <div
+                    style="padding:12px; background:var(--input-bg); border:1px solid var(--input-border); border-radius:4px; display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-users" style="color:var(--text-subtle);"></i>
+                    <span id="board-workspace-name" style="font-size:14px;">Espacio de trabajo de Usuario</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label class="info-label">Visibilidad</label>
+                <select id="board-visibility" class="input-field" style="cursor:pointer;">
+                    <option value="workspace">Espacio de trabajo</option>
+                    <option value="private">Privado</option>
+                    <option value="public">Público</option>
+                </select>
+                <div id="visibility-description"
+                    style="font-size:12px; color:var(--text-subtle); margin-top:8px; padding:8px; background:var(--input-bg); border-radius:4px;">
+                    Cualquier persona en Espacio de trabajo puede ver este tablero.
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label class="info-label">Fondo del tablero</label>
+                <div style="display:flex; gap:8px; overflow-x:auto; padding:8px 0;">
+                    <div class="cover-option" style="width:80px; height:60px; background:#0079bf;"
+                        onclick="selectBoardBackground('#0079bf', false)"></div>
+                    <div class="cover-option" style="width:80px; height:60px; background:#d29034;"
+                        onclick="selectBoardBackground('#d29034', false)"></div>
+                    <div class="cover-option" style="width:80px; height:60px; background:#519839;"
+                        onclick="selectBoardBackground('#519839', false)"></div>
+                    <div class="cover-option" style="width:80px; height:60px; background:#b04632;"
+                        onclick="selectBoardBackground('#b04632', false)"></div>
+                    <div class="cover-option" style="width:80px; height:60px; background:#89609e;"
+                        onclick="selectBoardBackground('#89609e', false)"></div>
+                    <div class="cover-option" style="width:80px; height:60px; background:#cd5a91;"
+                        onclick="selectBoardBackground('#cd5a91', false)"></div>
+                </div>
+                <div style="display:flex; gap:8px; overflow-x:auto; padding:8px 0;">
+                    <div class="cover-option"
+                        style="width:80px; height:60px; background:url('https://images.unsplash.com/photo-1557683316-973673baf926?w=400') center/cover;"
+                        onclick="selectBoardBackground('https://images.unsplash.com/photo-1557683316-973673baf926?w=400', true)">
+                    </div>
+                    <div class="cover-option"
+                        style="width:80px; height:60px; background:url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400') center/cover;"
+                        onclick="selectBoardBackground('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400', true)">
+                    </div>
+                    <div class="cover-option"
+                        style="width:80px; height:60px; background:url('https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400') center/cover;"
+                        onclick="selectBoardBackground('https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400', true)">
+                    </div>
+                    <div class="cover-option upload-option"
+                        style="width:80px; height:60px; background:#f4f5f7; border:2px dashed #dfe1e6; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer;"
+                        onclick="document.getElementById('board-bg-upload').click()">
+                        <i class="fas fa-upload" style="font-size:20px; color:#5e6c84; margin-bottom:4px;"></i>
+                        <span style="font-size:10px; color:#5e6c84; font-weight:600;">Subir</span>
+                    </div>
+                </div>
+                <input type="file" id="board-bg-upload" accept="image/*" style="display:none"
+                    onchange="handleBoardImageUpload(event)">
+            </div>
+
+            <button class="btn-submit" onclick="createBoard()" style="margin-top:20px;">Crear tablero</button>
+        </div>
+    </div>
+
+    <div id="modal-add-members" class="modal-overlay">
+        <div class="modal-content" style="max-width:500px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <div class="modal-title">Agregar participantes</div>
+                <i class="fas fa-times" onclick="closeModal('modal-add-members')"
+                    style="cursor:pointer; font-size:20px; color:var(--text-subtle);"></i>
+            </div>
+
+            <div class="input-group">
+                <label class="info-label">Buscar usuario por email</label>
+                <input type="email" id="member-search-input" class="input-field" placeholder="Escribe para buscar..."
+                    oninput="searchUsers(this.value)">
+            </div>
+
+            <div id="search-results-container" style="margin-top:12px; display:none;">
+                <div style="font-size:12px; color:var(--text-subtle); margin-bottom:8px;">
+                    Resultados de búsqueda:
+                </div>
+                <div id="search-results"
+                    style="max-height:200px; overflow-y:auto; border:1px solid var(--input-border); border-radius:4px;">
+                </div>
+            </div>
+
+            <div id="search-loading" style="display:none; text-align:center; padding:12px; color:var(--text-subtle);">
+                <i class="fas fa-spinner fa-spin"></i> Buscando usuarios...
+            </div>
+
+            <div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--separator-color);">
+                <div style="font-weight:600; font-size:14px; margin-bottom:12px; color:var(--text-color);">
+                    Participantes actuales
+                </div>
+                <div id="current-members-list" style="max-height:200px; overflow-y:auto;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-about" class="modal-overlay" onclick="closeModal('modal-about')">
+        <div class="modal-content" onclick="event.stopPropagation()" style="text-align:center;">
+            <a href="https://play.google.com/store/apps/details?id=com.trello&hl=es_419" target="_blank"
+                class="about-list-item"><i class="fab fa-google-play" style="color:#00c853;"></i> <span
+                    data-i18n="about_rate">Valóranos</span></a>
+            <a href="https://x.com/trello" target="_blank" class="about-list-item"><i class="fab fa-twitter"
+                    style="color:#03a9f4;"></i> Twitter</a>
+            <a href="https://www.facebook.com/trelloapp/?locale=es" target="_blank" class="about-list-item"><i
+                    class="fab fa-facebook" style="color:#1976d2;"></i> Facebook</a>
+            <a href="https://www.atlassian.com/legal/privacy-policy" target="_blank" class="about-list-item"><i
+                    class="fas fa-lock"></i> <span data-i18n="about_privacy">Privacidad</span></a>
+            <a href="https://www.atlassian.com/legal/privacy-policy#additional-disclosures-for-ca-residents"
+                target="_blank" class="about-list-item"><i class="fas fa-user-lock"></i> <span
+                    data-i18n="about_data">Aviso de datos</span></a>
+            <a href="https://www.atlassian.com/legal/atlassian-customer-agreement#intro" target="_blank"
+                class="about-list-item"><i class="fas fa-file-alt"></i> <span
+                    data-i18n="about_terms">Condiciones</span></a>
+            <div class="about-list-item" onclick="closeModal('modal-about'); showScreen('oss')"><i
+                    class="fas fa-code-branch"></i> <span data-i18n="about_oss">Bibliotecas</span></div>
+            <div style="margin-top:20px; font-size:12px; color:var(--text-subtle);">Trello Clone v1.0</div>
+            <img src="https://cdn-icons-png.flaticon.com/512/616/616430.png" style="width:100px; margin-top:15px;">
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+
+</body>
+
+</html>
